@@ -81,6 +81,24 @@ describe('performance timer', () => {
     assert.match(messages[0], /Measure audit_start_to_end took [0-9.]+ms/);
   });
 
+  describe('.measure', () => {
+    it('logs an error if the start mark is not present', () => {
+      performanceTimer.mark('foo_end');
+      performanceTimer.measure('foo', 'foo_start', 'foo_end');
+      assert.equal(messages.length, 1);
+      // non-specific message, Firefox has a different message from Chromium
+      assert.match(messages[0], /foo_start/);
+    });
+
+    it('logs an error if the end mark is not present', () => {
+      performanceTimer.mark('foo_start');
+      performanceTimer.measure('foo', 'foo_start', 'foo_end');
+      assert.equal(messages.length, 1);
+      // non-specific message, Firefox has a different message from Chromium
+      assert.match(messages[0], /foo_end/);
+    });
+  });
+
   describe('logMeasures', () => {
     beforeEach(() => {
       performanceTimer.start();
