@@ -16,6 +16,13 @@ axe.run(context, {}, (error: Error, results: axe.AxeResults) => {
   }
   console.log(results.passes.length);
   console.log(results.incomplete.length);
+  const errors = results.incomplete.map(result => result.error);
+  console.log(
+    errors.map(
+      ({ message, stack, ruleId, method }) =>
+        `${message} ${ruleId} ${method}\n\n${stack}`
+    )
+  );
   console.log(results.inapplicable.length);
   console.log(results.violations.length);
   console.log(results.violations[0].nodes[0].failureSummary);
@@ -450,9 +457,23 @@ if (axe.utils.isLabelledShadowDomSelector(unknownContext)) {
 } else if (axe.utils.isContextSpec(unknownContext)) {
   let context: axe.ContextSpec = unknownContext;
 }
+axe.utils.nodeSerializer.update({
+  toSpec(dqElm: axe.DqElement) {
+    return dqElm.toJSON();
+  },
+  mergeSpecs(childSpec: axe.SerialDqElement, parentSpec: axe.SerialDqElement) {
+    return axe.utils.DqElement.mergeSpecs(childSpec, parentSpec);
+  }
+});
+const spec2: axe.SerialDqElement = axe.utils.nodeSerializer.toSpec(element);
+const spec3: axe.SerialDqElement = axe.utils.nodeSerializer.dqElmToSpec(
+  dqElement,
+  options
+);
 
 // Commons
 axe.commons.aria.getRoleType('img');
 axe.commons.dom.isFocusable(document.body);
 axe.commons.dom.isNativelyFocusable(document.body);
+axe.commons.dom.getNodeGrid(document.body);
 axe.commons.text.accessibleText(document.body);
